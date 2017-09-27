@@ -18,18 +18,19 @@ A switch statement of sorts:
 
 However, it's a bit more general than a regular switch in that
 you can test more than just equality:
+```
+@switch isa(x, _) begin
+  Integer; "x is an integer!"
+  FloatingPoint; "x is a float!"
+  "x is something else!"
+end
 
-    @switch isa(x, _) begin
-      Integer; "x is an integer!"
-      FloatingPoint; "x is a float!"
-      "x is something else!"
-    end
-
-    @switch _ begin
-      a > b;  "more than!"
-      a < b;  "less than!"
-      a == b; "equal!"       # Note that this level of enthusiasm is not mandatory.
-    end
+@switch _ begin
+  a > b;  "more than!"
+  a < b;  "less than!"
+  a == b; "equal!"       # Note that this level of enthusiasm is not mandatory.
+end
+```
 
 Where `_` is replaced by the value for testing in each case. The final
 expression, if there is one, is used as the default value; if there is
@@ -122,7 +123,7 @@ end
 
 """
 # @as lets you name the threaded argmument
-@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+`@as _ x f(_, y) g(z, _) == g(z, f(x, y))`
 
 # All threading macros work over begin blocks
 
@@ -212,10 +213,7 @@ End-less let block, e.g.
 """
 macro with(ex)
   @capture(ex, ((bindings__,), body_)) || error("Invalid expression @with $ex")
-  ex = :(let
-           $body
-         end)
-  push!(ex.args, bindings...)
+  ex = Expr(:let, Expr(:block, bindings...), body)
   return esc(ex)
 end
 
